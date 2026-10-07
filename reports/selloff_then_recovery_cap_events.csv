@@ -1,0 +1,53 @@
+date,tranche,action,reason,cash,spot,message
+2026-02-02,A,OPEN,NEW_ENTRY,1665.00,753.62,"Sell 3x 835C 2026-03-06 (32 DTE, delta 0.16), credit 5.55 start / 5.55 floor. Spot 753.62."
+2026-02-02,B,OPEN,NEW_ENTRY,1410.00,753.62,"Sell 3x 870C 2026-03-20 (46 DTE, delta 0.12), credit 4.70 start / 4.70 floor. Spot 753.62."
+2026-02-09,A,ROLL,PROXIMITY,375.00,819.86,"Spot within 2% of strike. 835C 2026-03-06 | spot 819.86 | DTE 25 | profit -289% -> roll to 850C 2026-03-20 (39 DTE, delta 0.40), net credit 1.38 start / 1.24 floor."
+2026-02-27,A,CLOSE,TIME_STOP_ROLL,-4410.00,822.42,21 DTE with < 40% profit. 850C 2026-03-20 | spot 822.42 | DTE 21 | profit 36% No credit roll available: closing.
+2026-02-27,B,CLOSE,TIME_STOP_ROLL,-2730.00,822.42,21 DTE with < 40% profit. 870C 2026-03-20 | spot 822.42 | DTE 21 | profit -94% No credit roll available: closing.
+2026-03-02,A,OPEN,NEW_ENTRY,1830.00,836.33,"Sell 3x 925C 2026-04-02 (31 DTE, delta 0.16), credit 6.10 start / 6.10 floor. Spot 836.33."
+2026-03-10,A,CLOSE,PROFIT_TARGET,-390.00,807.38,Profit target hit. 925C 2026-04-02 | spot 807.38 | DTE 23 | profit 79%
+2026-03-11,A,OPEN,NEW_ENTRY,1680.00,835.15,"Sell 3x 925C 2026-04-10 (30 DTE, delta 0.15), credit 5.60 start / 5.60 floor. Spot 835.15."
+2026-03-17,A,CLOSE,PROXIMITY,-8220.00,916.92,Spot within 2% of strike. 925C 2026-04-10 | spot 916.92 | DTE 24 | profit -388% No credit roll available: closing.
+2026-05-04,A,OPEN,NEW_ENTRY,1800.00,833.86,"Sell 3x 925C 2026-06-05 (32 DTE, delta 0.15), credit 6.00 start / 6.00 floor. Spot 833.86."
+2026-05-04,B,OPEN,NEW_ENTRY,1425.00,833.86,"Sell 3x 965C 2026-06-18 (45 DTE, delta 0.11), credit 4.75 start / 4.75 floor. Spot 833.86."
+2026-05-13,A,CLOSE,PROFIT_TARGET,-888.00,829.94,Profit target hit. 925C 2026-06-05 | spot 829.94 | DTE 23 | profit 51%
+2026-05-14,A,OPEN,NEW_ENTRY,1575.00,834.98,"Sell 3x 925C 2026-06-12 (29 DTE, delta 0.14), credit 5.25 start / 5.25 floor. Spot 834.98."
+2026-05-22,A,ROLL,TIME_STOP_ROLL,990.00,838.08,"21 DTE with < 40% profit. 925C 2026-06-12 | spot 838.08 | DTE 21 | profit 38% -> roll to 945C 2026-07-02 (41 DTE, delta 0.15), net credit 3.32 start / 3.29 floor."
+2026-05-22,B,CLOSE,PROFIT_TARGET,-525.00,838.08,Profit target hit. 965C 2026-06-18 | spot 838.08 | DTE 27 | profit 63%
+2026-05-26,B,OPEN,NEW_ENTRY,1500.00,835.82,"Sell 3x 965C 2026-07-10 (45 DTE, delta 0.12), credit 5.00 start / 5.00 floor. Spot 835.82."
+2026-06-02,A,CLOSE,PROFIT_TARGET,-831.00,827.78,Profit target hit. 945C 2026-07-02 | spot 827.78 | DTE 30 | profit 58%
+2026-06-03,A,OPEN,NEW_ENTRY,1710.00,842.16,"Sell 3x 930C 2026-07-02 (29 DTE, delta 0.15), credit 5.70 start / 5.70 floor. Spot 842.16."
+2026-06-05,A,CLOSE,PROFIT_TARGET,-816.00,821.72,Profit target hit. 930C 2026-07-02 | spot 821.72 | DTE 27 | profit 52%
+2026-06-05,B,CLOSE,PROFIT_TARGET,-591.00,821.72,Profit target hit. 965C 2026-07-10 | spot 821.72 | DTE 35 | profit 61%
+2026-06-08,A,OPEN,NEW_ENTRY,1635.00,821.73,"Sell 3x 915C 2026-07-10 (32 DTE, delta 0.14), credit 5.45 start / 5.45 floor. Spot 821.73."
+2026-06-15,A,CLOSE,PROFIT_TARGET,-729.00,810.51,Profit target hit. 915C 2026-07-10 | spot 810.51 | DTE 25 | profit 56%
+2026-08-03,A,OPEN,NEW_ENTRY,1875.00,904.19,"Sell 3x 1005C 2026-09-04 (32 DTE, delta 0.15), credit 6.25 start / 6.25 floor. Spot 904.19."
+2026-08-03,B,OPEN,NEW_ENTRY,1650.00,904.19,"Sell 3x 1045C 2026-09-18 (46 DTE, delta 0.12), credit 5.50 start / 5.50 floor. Spot 904.19."
+2026-08-14,A,CLOSE,TIME_STOP_PROFIT,-990.00,908.71,21 DTE with >= 40% profit. 1005C 2026-09-04 | spot 908.71 | DTE 21 | profit 47%
+2026-08-17,A,OPEN,NEW_ENTRY,1875.00,938.73,"Sell 3x 1045C 2026-09-18 (32 DTE, delta 0.14), credit 6.25 start / 6.25 floor. Spot 938.73."
+2026-08-28,A,CLOSE,TIME_STOP_PROFIT,-1005.00,944.10,21 DTE with >= 40% profit. 1045C 2026-09-18 | spot 944.10 | DTE 21 | profit 46%
+2026-08-28,B,ROLL,TIME_STOP_ROLL,615.00,944.10,"21 DTE with < 40% profit. 1045C 2026-09-18 | spot 944.10 | DTE 21 | profit 38% -> roll to 1085C 2026-10-09 (42 DTE, delta 0.11), net credit 2.00 start / 1.98 floor."
+2026-08-31,A,OPEN,NEW_ENTRY,1875.00,912.87,"Sell 3x 1015C 2026-10-02 (32 DTE, delta 0.15), credit 6.25 start / 6.25 floor. Spot 912.87."
+2026-08-31,B,CLOSE,PROFIT_TARGET,-648.00,912.87,Profit target hit. 1085C 2026-10-09 | spot 912.87 | DTE 39 | profit 60%
+2026-09-08,A,CLOSE,PROFIT_TARGET,-411.00,881.60,Profit target hit. 1015C 2026-10-02 | spot 881.60 | DTE 24 | profit 78%
+2026-09-09,A,OPEN,NEW_ENTRY,1875.00,886.88,"Sell 3x 980C 2026-10-09 (30 DTE, delta 0.15), credit 6.25 start / 6.25 floor. Spot 886.88."
+2026-09-14,A,CLOSE,PROFIT_TARGET,-915.00,873.32,Profit target hit. 980C 2026-10-09 | spot 873.32 | DTE 25 | profit 51%
+2026-11-02,A,OPEN,NEW_ENTRY,2400.00,1117.71,"Sell 3x 1240C 2026-12-04 (32 DTE, delta 0.15), credit 8.00 start / 8.00 floor. Spot 1117.71."
+2026-11-02,B,OPEN,NEW_ENTRY,1950.00,1117.71,"Sell 3x 1295C 2026-12-18 (46 DTE, delta 0.11), credit 6.50 start / 6.50 floor. Spot 1117.71."
+2026-11-05,A,CLOSE,PROFIT_TARGET,-1065.00,1088.82,Profit target hit. 1240C 2026-12-04 | spot 1088.82 | DTE 29 | profit 55%
+2026-11-05,B,CLOSE,PROFIT_TARGET,-960.00,1088.82,Profit target hit. 1295C 2026-12-18 | spot 1088.82 | DTE 43 | profit 50%
+2026-11-06,A,OPEN,NEW_ENTRY,2190.00,1102.27,"Sell 3x 1215C 2026-12-04 (28 DTE, delta 0.15), credit 7.30 start / 7.30 floor. Spot 1102.27."
+2026-11-06,B,OPEN,NEW_ENTRY,1935.00,1102.27,"Sell 3x 1265C 2026-12-18 (42 DTE, delta 0.12), credit 6.45 start / 6.45 floor. Spot 1102.27."
+2026-11-11,A,CLOSE,PROFIT_TARGET,-444.00,1055.86,Profit target hit. 1215C 2026-12-04 | spot 1055.86 | DTE 23 | profit 80%
+2026-11-11,B,CLOSE,PROFIT_TARGET,-537.00,1055.86,Profit target hit. 1265C 2026-12-18 | spot 1055.86 | DTE 37 | profit 72%
+2026-11-12,A,OPEN,NEW_ENTRY,2100.00,1032.50,"Sell 3x 1140C 2026-12-11 (29 DTE, delta 0.15), credit 7.00 start / 7.00 floor. Spot 1032.50."
+2026-11-12,B,OPEN,NEW_ENTRY,1815.00,1032.50,"Sell 3x 1185C 2026-12-24 (42 DTE, delta 0.12), credit 6.05 start / 6.05 floor. Spot 1032.50."
+2026-11-17,A,CLOSE,PROFIT_TARGET,-702.00,1004.07,Profit target hit. 1140C 2026-12-11 | spot 1004.07 | DTE 24 | profit 67%
+2026-11-17,B,CLOSE,PROFIT_TARGET,-738.00,1004.07,Profit target hit. 1185C 2026-12-24 | spot 1004.07 | DTE 37 | profit 59%
+2026-11-18,A,OPEN,NEW_ENTRY,2205.00,1041.01,"Sell 3x 1150C 2026-12-18 (30 DTE, delta 0.16), credit 7.35 start / 7.35 floor. Spot 1041.01."
+2026-11-18,B,OPEN,NEW_ENTRY,1755.00,1041.01,"Sell 3x 1200C 2026-12-31 (43 DTE, delta 0.11), credit 5.85 start / 5.85 floor. Spot 1041.01."
+2026-11-27,A,CLOSE,PROFIT_TARGET,-678.00,1021.79,Profit target hit. 1150C 2026-12-18 | spot 1021.79 | DTE 21 | profit 69%
+2026-11-27,B,CLOSE,PROFIT_TARGET,-684.00,1021.79,Profit target hit. 1200C 2026-12-31 | spot 1021.79 | DTE 34 | profit 61%
+2026-11-30,A,OPEN,NEW_ENTRY,2220.00,1034.60,"Sell 3x 1145C 2026-12-31 (31 DTE, delta 0.15), credit 7.40 start / 7.40 floor. Spot 1034.60."
+2026-12-07,A,ROLL,PROXIMITY,525.00,1128.80,"Spot within 2% of strike. 1145C 2026-12-31 | spot 1128.80 | DTE 24 | profit -317% -> roll to 1155C 2027-01-08 (32 DTE, delta 0.44), net credit 1.92 start / 1.73 floor."
+2026-12-11,A,CLOSE,PROXIMITY,-13320.00,1158.18,Spot within 2% of strike. 1155C 2027-01-08 | spot 1158.18 | DTE 28 | profit -35% No credit roll available: closing.

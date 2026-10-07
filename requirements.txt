@@ -1,0 +1,6 @@
+# Steps 1-2 (rules engine + replay)
+pydantic>=2.5
+pytest>=8.0
+
+# Added in steps 3-5 (Schwab, earnings cross-check, Telegram):
+# schwab-py, requests, python-dotenv, yfinance
