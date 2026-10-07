@@ -52,7 +52,8 @@ class ChainModel:
     otm_call_skew: float = 0.10      # IV falls a little as call strikes go further OTM
     rate: float = 0.04
     strike_step: float = 5.0
-    strike_range: float = 0.35       # strikes from -35% to +35% around spot
+    strike_range: float = 0.35       # strikes up to +35% above spot
+    strike_floor: float = 0.25       # and down to -25% below
     horizon_days: int = 70
     min_spread: float = 0.02
     spread_pct: float = 0.03
@@ -66,15 +67,27 @@ class ChainModel:
     def spread(self, mid: float) -> float:
         return max(self.min_spread, self.spread_pct * mid + 0.01)
 
-    def build(self, symbol: str, asof: date, spot: float, earnings_dates: list[date]) -> OptionChain:
+    def step_for(self, spot: float) -> float:
+        """Strike spacing ~0.75% of spot: $5 around today's META price, scaled for other levels."""
+        target = spot * 0.0075
+        for step in (1.0, 2.5, 5.0, 10.0, 25.0, 50.0, 100.0):
+            if step >= target:
+                return step
+        return 100.0
+
+    def build(self, symbol: str, asof: date, spot: float, earnings_dates: list[date],
+              extra_strikes: tuple[float, ...] = ()) -> OptionChain:
+        """`extra_strikes` keeps held contracts quoted even if the strike grid changes."""
         quotes = []
-        lo = math.floor(spot * (1 - self.strike_range) / self.strike_step) * self.strike_step
-        hi = math.ceil(spot * (1 + self.strike_range) / self.strike_step) * self.strike_step
-        strikes = []
+        step = self.step_for(spot)
+        lo = math.floor(spot * (1 - self.strike_floor) / step) * step
+        hi = math.ceil(spot * (1 + self.strike_range) / step) * step
+        grid = set()
         k = lo
         while k <= hi + 1e-9:
-            strikes.append(round(k, 2))
-            k += self.strike_step
+            grid.add(round(k, 2))
+            k += step
+        strikes = sorted(grid | set(extra_strikes))
 
         for expiry in weekly_expiries(asof, self.horizon_days):
             days = (expiry - asof).days
@@ -87,7 +100,7 @@ class ChainModel:
                 half = self.spread(price) / 2
                 bid = max(0.0, round(price - half, 2))
                 ask = round(max(price + half, bid + 0.01), 2)
-                if ask < 0.03:
+                if ask < 0.03 and strike not in extra_strikes:
                     continue  # strikes too far out to be quoted
                 quotes.append(OptionQuote(expiry, strike, bid, ask, round(delta, 4)))
         return OptionChain(symbol, asof, round(spot, 2), tuple(quotes))

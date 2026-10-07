@@ -70,6 +70,10 @@ class StrategyConfig(BaseModel):
     short_roll_earnings_buffer_tdays: int = 5
     # Minimum net credit for a roll, measured at the ladder caps (worst-case fill). 0 = flat.
     roll_min_net_credit: float = 0.0
+    # Policy knobs for research (defaults = the agreed rulebook).
+    proximity_roll_enabled: bool = True      # False: proximity always closes
+    defensive_roll_max_delta: float = 1.0    # e.g. 0.30: refuse defensive rolls above this delta
+    time_stop_fallback: str = "close"        # "close" | "hold": what 21 DTE does when no credit roll exists
 
     # --- Order ladder ---
     ladder_step: float = 0.05
@@ -92,6 +96,8 @@ class StrategyConfig(BaseModel):
         for t in self.tranches:
             if not t.writable and t.contracts != 0:
                 raise ValueError(f"non-writable tranche {t.name} must have 0 contracts")
+        if self.time_stop_fallback not in ("close", "hold"):
+            raise ValueError("time_stop_fallback must be 'close' or 'hold'")
         if not 0.5 <= self.ladder_cap_spread_fraction < 1.0:
             raise ValueError("ladder cap must be between mid (0.5) and natural (1.0)")
         return self

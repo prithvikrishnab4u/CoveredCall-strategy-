@@ -149,6 +149,9 @@ class StrategyEngine:
 
         # 2. Proximity defense.
         if spot >= pos.strike * cfg.proximity_pct:
+            if not cfg.proximity_roll_enabled:
+                return self._close(pos, quote, Reason.PROXIMITY,
+                                   f"Spot within {1 - cfg.proximity_pct:.0%} of strike: closing. {summary}")
             return self._roll_or_close(
                 pos, quote, tcfg, market, Reason.PROXIMITY, RollGoal.DEFENSIVE,
                 f"Spot within {1 - cfg.proximity_pct:.0%} of strike. {summary}",
@@ -163,10 +166,11 @@ class StrategyEngine:
             if pnl >= cfg.time_stop_close_profit_pct:
                 return self._close(pos, quote, Reason.TIME_STOP_PROFIT,
                                    f"{cfg.time_stop_dte} DTE with >= {cfg.time_stop_close_profit_pct:.0%} profit. {summary}")
-            return self._roll_or_close(
-                pos, quote, tcfg, market, Reason.TIME_STOP_ROLL, RollGoal.RESET,
-                f"{cfg.time_stop_dte} DTE with < {cfg.time_stop_close_profit_pct:.0%} profit. {summary}",
-            )
+            message = f"{cfg.time_stop_dte} DTE with < {cfg.time_stop_close_profit_pct:.0%} profit. {summary}"
+            if cfg.time_stop_fallback == "hold" and self._find_roll(pos, quote, tcfg, market, RollGoal.RESET) is None:
+                return Decision(pos.tranche, Action.HOLD, Reason.TIME_STOP_ROLL,
+                                f"{message} No credit roll: holding; proximity rule still guards it.")
+            return self._roll_or_close(pos, quote, tcfg, market, Reason.TIME_STOP_ROLL, RollGoal.RESET, message)
 
         return Decision(pos.tranche, Action.HOLD, Reason.NO_TRIGGER, f"Hold. {summary}")
 
@@ -240,6 +244,8 @@ class StrategyEngine:
                 if q.strike < pos.strike or q.strike * cfg.proximity_pct <= spot or q.bid <= 0:
                     continue
                 if goal is RollGoal.RESET and q.delta > tcfg.delta_max:
+                    continue
+                if goal is RollGoal.DEFENSIVE and q.delta > cfg.defensive_roll_max_delta:
                     continue
                 if ex_div_guard_active(q.expiry, market, cfg) and time_value(q, spot) < ex_div_threshold(market, cfg):
                     continue

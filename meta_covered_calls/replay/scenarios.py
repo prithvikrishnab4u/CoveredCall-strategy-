@@ -32,6 +32,21 @@ class Scenario:
     ex_div_dates: list[date] = field(default_factory=lambda: list(EX_DIV_2026))
     dividend: float = DIVIDEND
     base_iv: float = 0.32
+    # Optional day-by-day implied vol (e.g. higher in a bear market). Falls back to base_iv.
+    iv_path: dict[date, float] | None = None
+    # (estimated date, actual date, day the actual date is announced). Before the announcement
+    # the engine only knows the estimate, exactly as it would live.
+    earnings_revisions: list[tuple[date, date, date]] = field(default_factory=list)
+
+    def iv_on(self, day: date) -> float | None:
+        return self.iv_path.get(day) if self.iv_path else None
+
+    def earnings_as_seen(self, day: date) -> list[date]:
+        seen = list(self.earnings_dates)
+        for estimate, actual, announced in self.earnings_revisions:
+            if day < announced:
+                seen = [estimate if e == actual else e for e in seen]
+        return sorted(seen)
 
 
 def _path(start: date, end: date, s0: float, mu: float, vol: float, seed: int,
