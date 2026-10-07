@@ -18,7 +18,7 @@ here talks to Schwab or Telegram yet, and nothing can place an order.
 
 ```bash
 pip install -r requirements.txt
-python -m pytest                          # 74 tests
+python -m pytest                          # 81 tests
 python -m meta_covered_calls.replay       # all scenarios, writes reports/
 python -m meta_covered_calls.replay --scenario melt_up --fill cap
 ```
@@ -98,6 +98,29 @@ These are choices I made where the spec left room. Each is a config value or a f
 
 **Caveats.** The chains come from Black-Scholes, not real market data. The engine is checked once per day at the close, while the live system will check every 30 minutes. Earnings and ex-div dates are placeholders in META's usual rhythm. Treat the dollar figures as directional. The rule-safety results are the solid part.
 
+## Research runs
+
+```bash
+python -m meta_covered_calls.research regimes      # bull/bear/earnings regimes x delta sweep + earnings audit
+python -m meta_covered_calls.research montecarlo --paths 200
+python -m meta_covered_calls.research history      # 12-year stylized path (slow: ~15 min)
+```
+
+Reports in `reports/research/`. Every setting is compared on the same paths:
+
+- **Delta sweep:** both tranches at 0.10, 0.15, or 0.20.
+- **Policy variants:**
+  - Proximity always closes.
+  - Defensive rolls capped at 0.30 delta.
+  - At 21 DTE, hold instead of closing when no credit roll exists.
+
+To test another rule, add a `StrategyConfig` to `VARIANTS` or `POLICIES` in `research/__main__.py`.
+
+Main findings, all on synthetic data:
+- Zero rule violations across about 2,000 runs.
+- Net income is roughly break-even on average. It's positive in down and flat years and negative in strong up years. Refusing assignment turns every big rally into a cash buyback.
+- Higher delta means more gross premium but worse net results.
+
 ## Tax note: for your CPA, not code
 
 Under the qualified covered call rules, calls with 30 days or less to expiry generally don't qualify. Tranche A (28–35 DTE) and the earnings-buffer rolls can land there. The straddle rules can then defer losses on the calls. Ask your CPA how this affects buyback losses in this account.
@@ -114,6 +137,7 @@ meta_covered_calls/
   safety.py            independent checks on every decision
   state_store.py       tranche state, fills, JSON persistence
   replay/              synthetic chains, scenarios, day-by-day runner
-tests/                 74 tests
+  research/            regimes, delta/policy sweeps, Monte Carlo, long history
+tests/                 81 tests
 reports/               sample replay output
 ```
