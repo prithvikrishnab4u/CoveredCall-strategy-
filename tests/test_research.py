@@ -78,4 +78,4 @@ def test_real_closes_cover_every_trading_day():
     # Every listed print except the unreported next one shows up as a real move in the data.
     from meta_covered_calls.market_calendar import next_trading_day
     moves = [abs(closes[next_trading_day(e)] / closes[e] - 1) for e in EARNINGS if next_trading_day(e) in closes]
-    assert len(moves) == 39 and sum(m > 0.03 for m in moves) >= 30
+    assert len(moves) == 40 and sum(m > 0.03 for m in moves) >= 30
