@@ -231,6 +231,79 @@ def history_report(out: Path) -> bool:
     return not bad
 
 
+# --------------------------------------------------------------------------- real META closes
+
+def real_report(out: Path, csv_path: str) -> bool:
+    from .real import real_scenario
+
+    ratios = (1.0, 1.15, 1.3)
+    scenarios = {k: real_scenario(csv_path, k) for k in ratios}
+    jobs = [(v, scenarios[k]) for k in ratios for v in ALL]
+    results = _parallel(jobs)
+    by = {(round(float(r.scenario.name.split("= ")[1].split("x")[0]), 2), v): r for v, r in results}
+    s = scenarios[1.15]
+    days = sorted(s.closes)
+    s0, s1 = s.closes[days[0]], s.closes[days[-1]]
+    stock_gain_600 = (s1 - s0) * 600
+
+    lines = [
+        f"# Real META closes: {days[0]} to {days[-1]} ({len(days)} trading days)",
+        "",
+        "Real prices, real gaps, real earnings dates (40 prints). Option prices are modelled: implied vol = "
+        "the stock's trailing 30-day realized vol (earnings days excluded) × an assumed ratio, plus an 8% "
+        "earnings move for expiries that span a print. Fills at the ladder cap (worst case).",
+        "",
+        f"META went from ${s0:.2f} to ${s1:.2f}. Over the same period the 600 writable shares gained "
+        f"{_money(stock_gain_600)} — every setting below keeps all of that, because nothing was ever assigned.",
+        "",
+        "## Net yield per year on the 600 writable shares",
+        "",
+        "| Setting | IV 1.0× realized | IV 1.15× | IV 1.3× | Net premium, 10 yrs (1.15×) | Gross premium (1.15×) | "
+        "Defensive rolls / closes | A / B written | Max shorts | Violations (all 3) |",
+        "|---|---:|---:|---:|---:|---:|---|---|---:|---:|",
+    ]
+    for v in ALL:
+        mid = by[(1.15, v)]
+        viol = sum(len(by[(k, v)].violations) for k in ratios)
+        lines.append(
+            f"| {v} | {by[(1.0, v)].net_yield:+.2%} | {mid.net_yield:+.2%} | {by[(1.3, v)].net_yield:+.2%} | "
+            f"{_money(mid.net_premium)} | {_money(mid.gross_premium)} | {mid.defensive_rolls} / "
+            f"{mid.defensive_closes} | {mid.written_pct('A'):.0%} / {mid.written_pct('B'):.0%} | "
+            f"{max(by[(k, v)].max_shorts for k in ratios)} | {viol} |"
+        )
+
+    years = sorted({d.year for d in days})
+    lines += ["", "## Realized premium by year (IV 1.15×), % of the writable shares' average value", "",
+              "| Year | META | " + " | ".join(ALL) + " |", "|---|---:|" + "---:|" * len(ALL)]
+    for y in years:
+        yd = [d for d in days if d.year == y]
+        px = sum(s.closes[d] for d in yd) / len(yd) * 600
+        stock = s.closes[max(yd)] / s.closes[min(yd)] - 1
+        cells = [f"{sum(e.cash for e in by[(1.15, v)].events if e.day.year == y) / px:+.2%}" for v in ALL]
+        lines.append(f"| {y}{'*' if y in (2016, 2026) else ''} | {stock:+.0%} | " + " | ".join(cells) + " |")
+    lines.append("")
+    lines.append("\\* partial year (data starts Oct 2016 and ends Oct 2026).")
+
+    audits = [a for k in ratios for v in ALL for a in by[(k, v)].earnings_audit]
+    lines += ["", "## Earnings check", "",
+              f"{len(audits)} print-checks (40 prints × {len(ALL)} settings × 3 vol levels). Short calls open "
+              f"inside the 5 trading days before a print: **{sum(a.max_shorts_in_window for a in audits)}**. "
+              f"Biggest next-day move the book sat out: "
+              f"{max(by[(1.15, 'current (A .15 / B .115)')].earnings_audit, key=lambda a: abs(a.gap_pct)).gap_pct:+.1%}.",
+              ]
+    bad = [(k, v, x) for k in ratios for v in ALL for x in by[(k, v)].violations]
+    lines += ["", "## Violations", "", "None." if not bad else "\n".join(f"- {v} ({k}x): {x}" for k, v, x in bad[:20])]
+    _write(out / "real_meta.md", lines)
+
+    for v in ("current (A .15 / B .115)",):
+        r = by[(1.15, v)]
+        with open(out / "real_meta_current_events.csv", "w") as f:
+            f.write("date,tranche,action,reason,cash,spot,message\n")
+            for e in r.events:
+                f.write(f'{e.day},{e.tranche},{e.action},{e.reason},{e.cash:.2f},{e.spot:.2f},"{e.message}"\n')
+    return not bad
+
+
 def _write(path: Path, lines: list[str]) -> None:
     path.write_text("\n".join(lines) + "\n")
     print("\n".join(lines))
@@ -239,7 +312,8 @@ def _write(path: Path, lines: list[str]) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="python -m meta_covered_calls.research")
-    p.add_argument("what", choices=["regimes", "montecarlo", "history", "all"])
+    p.add_argument("what", choices=["regimes", "montecarlo", "history", "real", "all"])
+    p.add_argument("--csv", default="data/meta_daily.csv", help="date,close file for 'real'")
     p.add_argument("--paths", type=int, default=200)
     p.add_argument("--out", default="reports/research")
     args = p.parse_args(argv)
@@ -252,6 +326,8 @@ def main(argv: list[str] | None = None) -> int:
         ok &= montecarlo_report(out, args.paths)
     if args.what in ("history", "all"):
         ok &= history_report(out)
+    if args.what in ("real", "all"):
+        ok &= real_report(out, args.csv)
     return 0 if ok else 1
 
 

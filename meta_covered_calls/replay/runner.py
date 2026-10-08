@@ -195,8 +195,9 @@ def _audit_earnings(scenario: Scenario, days: list[date], shorts_by_day: dict[da
     for e in sorted(scenario.earnings_dates):
         if not (days[0] <= e <= days[-1]):
             continue
-        window = [d for d in days if 0 <= trading_days_until(d, e) <= 5]
-        lookback = [d for d in days if trading_days_until(d, e) == 10]
+        near = [d for d in days if 0 <= (e - d).days <= 21]   # keep the trading-day counts cheap
+        window = [d for d in near if trading_days_until(d, e) <= 5]
+        lookback = [d for d in near if trading_days_until(d, e) == 10]
         seen = None
         if lookback:
             seen = next((x for x in scenario.earnings_as_seen(lookback[0]) if x >= lookback[0]), None)

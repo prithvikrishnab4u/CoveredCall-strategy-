@@ -63,3 +63,19 @@ def test_time_stop_hold_fallback():
     pos = position_at_profit(m, "A", date(2026, 4, 24), 720.0, 0.10)  # no roll clears earnings
     d = _decide(StrategyConfig(time_stop_fallback="hold"), state_with(pos), m, "A")
     assert d.action is Action.HOLD and d.reason is Reason.TIME_STOP_ROLL
+
+
+# ---------------------------------------------------------------- real data
+
+def test_real_closes_cover_every_trading_day():
+    from meta_covered_calls.market_calendar import trading_days_range
+    from meta_covered_calls.research.real import EARNINGS, load_closes, realized_vol_path
+
+    closes = load_closes("data/meta_daily.csv")
+    days = sorted(closes)
+    assert set(days) == set(trading_days_range(days[0], days[-1]))
+    assert all(0.2 <= v <= 1.0 for v in realized_vol_path(closes).values())
+    # Every listed print except the unreported next one shows up as a real move in the data.
+    from meta_covered_calls.market_calendar import next_trading_day
+    moves = [abs(closes[next_trading_day(e)] / closes[e] - 1) for e in EARNINGS if next_trading_day(e) in closes]
+    assert len(moves) == 39 and sum(m > 0.03 for m in moves) >= 30

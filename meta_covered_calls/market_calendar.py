@@ -41,6 +41,13 @@ def _observed(d: date) -> date:
     return d
 
 
+# One-off closures (national days of mourning) that no rule can predict.
+SPECIAL_CLOSURES = frozenset({
+    date(2018, 12, 5),   # President George H. W. Bush
+    date(2025, 1, 9),    # President Jimmy Carter
+})
+
+
 @lru_cache(maxsize=None)
 def nyse_holidays(year: int) -> frozenset[date]:
     days = {
@@ -59,6 +66,7 @@ def nyse_holidays(year: int) -> frozenset[date]:
         days.add(_observed(new_year))
     if year >= 2022:
         days.add(_observed(date(year, 6, 19)))  # Juneteenth
+    days |= {d for d in SPECIAL_CLOSURES if d.year == year}
     return frozenset(days)
 
 
